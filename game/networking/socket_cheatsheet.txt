@@ -1,0 +1,42 @@
+Setting up the player when it joins the game
+"command": "setup"
+"board": board
+"nickname": player.nickname
+"direction": player.direction
+
+
+-----------------------------------------------------------------------
+When game starts
+"command": "begin game"
+"players nickname": players nickname
+
+
+-----------------------------------------------------------------------
+Informing all the players whose turn it is
+"command": "turn to move"
+"turn": client.code
+
+The player will reply
+"command": "moved"
+"movement": movement
+
+If reply is in valid (only to that specific player)
+"command": "invalid reply"
+"problem": "invalid movement" or "not your turn"
+
+
+acceptable movement object
+movement:{
+"type": "piece move" or "fence placement"
+"movement":
+for piece move ("forward", "backward", "left", "right", "jump", "diagonal")
+for fence placement (list of 3 positions)
+}
+
+
+** for player object +1 means towards end, and -1 means towards the front of the board for the direction of the pieces
+
+-----------------------------------------------------------------------
+Informing all the players whose the winner
+"command": "winner"
+"winner": client.code
