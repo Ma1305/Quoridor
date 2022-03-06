@@ -1,4 +1,5 @@
 import graphics
+import other_calculations
 
 
 class Board:
@@ -17,20 +18,51 @@ class Board:
         return player
 
     def move(self, player, movement):
+        # piece movement
         if movement["type"] == "piece move":
             if movement["movement"] == "forward":
-                player.pawn.position += player.direction*17
+                player.pawn.position += player.direction*34
             elif movement["movement"] == "backward":
-                player.pawn.position += -1*player.direction*17
+                player.pawn.position += -1*player.direction*34
             elif movement["movement"] == "right":
-                player.pawn.position += 2
+                player.pawn.position += player.direction*2
             elif movement["movement"] == "backward":
-                player.pawn.position -= 2
+                player.pawn.position -= player.direction*2
+            elif movement["movement"] == "jump forward":
+                player.pawn.position += player.direction*68
+            elif movement["movement"] == "jump backward":
+                player.pawn.position -= player.direction*68
+            elif movement["movement"] == "jump right":
+                player.pawn.position += player.direction*4
+            elif movement["movement"] == "jump left":
+                player.pawn.position -= player.direction*4
+            elif movement["movement"] == "right top diagonal":
+                player.pawn.position += player.direction*35
+            elif movement["movement"] == "left top diagonal":
+                player.pawn.position += player.direction*33
+            elif movement["movement"] == "left down diagonal":
+                player.pawn.position -= player.direction*35
+            elif movement["movement"] == "right down diagonal":
+                player.pawn.position -= player.direction*33
             if player.direction == 1 and player.pawn.position > 17*17:
                 self.winner(player)
             elif player.direction == -1 and player.pawn.position < 0:
                 self.winner(player)
 
+        # fence placement
+        if movement["type"] == "fence placement":
+            for pos in movement["movement"]:
+                self.board[pos-1] = 1
+            other_player = None
+            if player.board.turn == 1:
+                other_player = player.board.players[0]
+            else:
+                other_player = player.board.players[1]
+            if not other_calculations.is_path(player.pawn.position, self.board, [], player.direction) or not other_calculations.is_path(other_player.pawn.position, self.board, [], other_player.direction):
+                for pos in movement["movement"]:
+                    self.board[pos - 1] = 0
+                player.send({"command": "invalid reply", "problem": "invalid movement"})
+        # moving to the next person
         self.turn += 1
         turn = self.get_turn
         self.send_all({"command": "turn to move", "turn": turn.client.code})
@@ -109,5 +141,7 @@ def new_player(game_graphics, client, nickname):
     player = Player(pawn, game_graphics.storage["board"], client, nickname)
     pawn.player = player
     game_graphics.storage["board"].add_player(player)
+    game_graphics.storage["players"].append(player)
+    return player
 
 

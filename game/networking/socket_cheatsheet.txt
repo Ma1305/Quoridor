@@ -1,8 +1,10 @@
 Setting up the player when it joins the game
 "command": "setup"
 "board": board
-"nickname": player.nickname
 "direction": player.direction
+
+"command": "setup reply"
+"nickname": nickname
 
 
 -----------------------------------------------------------------------
@@ -29,7 +31,7 @@ acceptable movement object
 movement:{
 "type": "piece move" or "fence placement"
 "movement":
-for piece move ("forward", "backward", "left", "right", "jump", "diagonal")
+for piece move ("forward", "backward", "left", "right", "forward jump", "right jump", "left jump", "backward jump", "right top diagonal", "left top diagonal", "right down diagonal", "left down diagonal")
 for fence placement (list of 3 positions)
 }
 

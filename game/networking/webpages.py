@@ -5,4 +5,10 @@ from networking.web_setup import *
 @app.route("/main")
 @app.route("/home")
 def home():
-    return render_template("game.html")
+    return render_template("home.html")
+
+@app.route("game/<code>")
+def game(code):
+    pass
+
+
