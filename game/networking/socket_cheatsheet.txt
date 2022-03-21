@@ -2,6 +2,7 @@ Setting up the player when it joins the game
 "command": "setup"
 "board": board
 "direction": player.direction
+"client code": player.client.code
 
 "command": "setup reply"
 "nickname": nickname
@@ -20,6 +21,12 @@ Informing all the players whose turn it is
 
 The player will reply
 "command": "moved"
+"type": type of movement
+"movement": movement
+
+If replay is valid (send from server to all)
+"command": "moved"
+"player_code": player_code
 "movement": movement
 
 If reply is in valid (only to that specific player)

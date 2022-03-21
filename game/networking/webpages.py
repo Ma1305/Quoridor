@@ -1,14 +1,20 @@
 from networking.web_setup import *
 
 
-@app.route("/")
-@app.route("/main")
-@app.route("/home")
+@app.route("/", methods=["POST", "GET"])
+@app.route("/main", methods=["POST", "GET"])
+@app.route("/home", methods=["POST", "GET"])
 def home():
-    return render_template("home.html")
+    if request.method == "POST":
+        return redirect(url_for("game"))
+    else:
+        return render_template("home.html")
 
-@app.route("game/<code>")
-def game(code):
-    pass
 
-
+@app.route("/game", methods=["POST", "GET"])
+def game():
+    if request.method == "POST":
+        nickname = request.form["nickname"]
+        return render_template("game.html", nickname=nickname)
+    else:
+        return render_template("open_game.html")

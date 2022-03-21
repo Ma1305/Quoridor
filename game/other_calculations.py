@@ -58,7 +58,7 @@ def is_path(position, board, pre_positions, direction):
         for pos in availables:
             if (pos + (pos - position)) not in pre_positions:
                 if board[pos - 1] == 0:
-                    if board[(pos + (pos - position)) - 1] < 0:
+                    if board[(pos + (pos - position)) - 1] > 17*17:
                         return True
                     else:
                         if is_path((pos + (pos - position)), board, pre_positions, direction):

@@ -4,7 +4,7 @@ from datetime import timedelta
 from flask_socketio import SocketIO
 import socketio
 
-ip = None
+ip = "10.240.71.137"
 port = None
 app = Flask(__name__)
 Flask.secret_key = "thisIsReallySecret"

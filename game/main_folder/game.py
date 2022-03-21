@@ -19,6 +19,7 @@ class Board:
 
     def move(self, player, movement):
         # piece movement
+        print(movement)
         if movement["type"] == "piece move":
             if movement["movement"] == "forward":
                 player.pawn.position += player.direction*34
@@ -26,7 +27,7 @@ class Board:
                 player.pawn.position += -1*player.direction*34
             elif movement["movement"] == "right":
                 player.pawn.position += player.direction*2
-            elif movement["movement"] == "backward":
+            elif movement["movement"] == "left":
                 player.pawn.position -= player.direction*2
             elif movement["movement"] == "jump forward":
                 player.pawn.position += player.direction*68
@@ -37,17 +38,19 @@ class Board:
             elif movement["movement"] == "jump left":
                 player.pawn.position -= player.direction*4
             elif movement["movement"] == "right top diagonal":
-                player.pawn.position += player.direction*35
+                player.pawn.position += player.direction*36
             elif movement["movement"] == "left top diagonal":
-                player.pawn.position += player.direction*33
+                player.pawn.position += player.direction*32
             elif movement["movement"] == "left down diagonal":
-                player.pawn.position -= player.direction*35
+                player.pawn.position -= player.direction*36
             elif movement["movement"] == "right down diagonal":
-                player.pawn.position -= player.direction*33
-            if player.direction == 1 and player.pawn.position > 17*17:
-                self.winner(player)
-            elif player.direction == -1 and player.pawn.position < 0:
-                self.winner(player)
+                player.pawn.position -= player.direction*32
+            if player.direction == 1 and player.pawn.position > 17*16:
+                self.winner(player, movement)
+                return True
+            elif player.direction == -1 and player.pawn.position < 18:
+                self.winner(player, movement)
+                return True
 
         # fence placement
         if movement["type"] == "fence placement":
@@ -62,25 +65,30 @@ class Board:
                 for pos in movement["movement"]:
                     self.board[pos - 1] = 0
                 player.send({"command": "invalid reply", "problem": "invalid movement"})
+                return False
         # moving to the next person
         self.turn += 1
-        turn = self.get_turn
+        turn = self.get_turn()
+        print(player.pawn.position)
+        self.print_board()
+        self.send_all({"command": "moved", "player_code": player.client.code, "movement": movement})
         self.send_all({"command": "turn to move", "turn": turn.client.code})
 
     def add_player(self, player):
         player_direction = 0
 
         # setting up the player's pawn position
-        if len(self.players) == 1:
+        if len(self.players) == 0:
             player.pawn.position = 9
             player_direction = 1
-        if len(self.players) == 2:
+        if len(self.players) == 1:
             player.pawn.position = 281
             player_direction = -1
 
         # setting up player
         self.players.append(player)
         player.setup(self.board, player_direction)
+        # print("how many times")
 
         # starting the game
         if len(self.players) >= self.limit:
@@ -89,15 +97,28 @@ class Board:
     def start(self):
         self.game_graphics.storage["status"] = "playing"
         nicknames = [player.nickname for player in self.players]
-        self.send_all({"command": "being game", "players": nicknames})
+        self.send_all({"command": "begin game", "players nickname": nicknames})
+        turn = self.get_turn()
+        self.send_all({"command": "turn to move", "turn": turn.client.code})
 
     def send_all(self, msg):
         for player in self.players:
             player.send(msg)
 
-    def winner(self, winner):
+    def winner(self, winner, movement):
+        self.send_all({"command": "moved", "player_code": winner.client.code, "movement": movement})
         self.game_graphics.storage["status"] = "over"
         self.send_all({"command": "winner", "winner": winner.client.code})
+        graphics.game_graphics_list.pop(self.game_graphics)
+
+    def print_board(self):
+        counter = 0
+        for unit in self.board:
+            counter += 1
+            print(unit, end=' ')
+            if counter == 17:
+                print()
+                counter = 0
 
 
 class Game:
@@ -124,7 +145,7 @@ class Player:
 
     def setup(self, board, direction):
         self.direction = direction
-        msg = {"command": "setup", "board": board, "nickname": self.nickname, "direction": self.direction}
+        msg = {"command": "setup", "board": board, "nickname": self.nickname, "direction": self.direction, "client code": self.client.code}
         self.send(msg)
 
 
