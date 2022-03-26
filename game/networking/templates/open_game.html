@@ -2,11 +2,15 @@
 
 {% block title %}enter nickname{% endblock %}
 
+{% block imports %} 
+    <link rel="stylesheet" href="{{url_for ('static',filename='style/open_game.css')}} ">
+{% endblock %} 
 
 {% block content %}
     <form action="#" method="POST" id="nickname_form">
         <p id="nickname_question">Enter your nickname:</p>
         <input type="text" id="nickname" name="nickname" placeholder="Enter your nick name">
+        <br>
         <input type="submit" value="play" id="play">
     </form>
 {% endblock %}

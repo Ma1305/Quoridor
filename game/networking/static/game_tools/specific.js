@@ -73,9 +73,15 @@ class Board{
         }
         this.player_shape.y = Math.floor((Math.floor((this.this_player.position-1)/17))/2)*this.between_tiles+Math.ceil((Math.floor((this.this_player.position-1)/17))/2)*this.tiles_height + this.tiles_height/2;
         this.player_shape.x = Math.floor(((this.this_player.position-1)%17)/2)*this.between_tiles+Math.ceil(((this.this_player.position-1)%17)/2)*this.tiles_height + this.tiles_height/2;
+        var player_outline = new CircleOutline(this.ctx, this.player_shape.x, this.player_shape.y, this.player_shape.radius, rgbToColor([0, 255, 0]));
+        player_outline.draw();
+        
         this.opponent_shape.y = Math.floor((Math.floor((this.opponent_player.position-1)/17))/2)*this.between_tiles+Math.ceil((Math.floor((this.opponent_player.position-1)/17))/2)*this.tiles_height + this.tiles_height/2;
         this.opponent_shape.x = Math.floor(((this.opponent_player.position-1)%17)/2)*this.between_tiles+Math.ceil(((this.opponent_player.position-1)%17)/2)*this.tiles_height + this.tiles_height/2;
         this.opponent_shape.draw();
+        var opponent_outline = new CircleOutline(this.ctx, this.opponent_shape.x, this.opponent_shape.y, this.opponent_shape.radius, rgbToColor([255, 0, 0]));
+        opponent_outline.draw();
+
         this.player_shape.draw();
         if (this.draw_option_player){
             this.option_player_shape.y = Math.floor((Math.floor((this.option_player_pos-1)/17))/2)*this.between_tiles+Math.ceil((Math.floor((this.option_player_pos-1)/17))/2)*this.tiles_height + this.tiles_height/2;
@@ -99,6 +105,26 @@ class Board{
             this.option_fence_shape.draw();
             this.draw_option_fence = false;
         }
+        var x = 0;
+        var y = 0;
+        var dimenssion = 9*this.tiles_height + 8*this.between_tiles; 
+        
+        var above_line_color = [255, 0, 0];
+        if (this.this_player.direction == 1){
+            above_line_color = [0, 255, 0];
+        }
+        var above_line = new Line(this.ctx, [x, y], [x+dimenssion, y], rgbToColor(above_line_color));
+
+        var below_line_color = [255, 0, 0];
+        if (this.this_player.direction == -1){
+            below_line_color = [0, 255, 0];
+        }
+        var below_line = new Line(this.ctx, [x, y+dimenssion], [x+dimenssion, y+dimenssion], rgbToColor(below_line_color));
+
+        above_line.width = 7;
+        below_line.width = 7;
+        above_line.draw();
+        below_line.draw();
     }
 }
  
@@ -108,6 +134,7 @@ class Player{
         this.position = position;
         this.direction = direction;
         this.board = board;
+        this.fences = 10;
     }
     move(movement_type, movement){
         if (!this.check_movement){
@@ -157,6 +184,7 @@ class Player{
                 return false;
             }
             else{
+                this.fences-=1;
                 return true;
             }
         }
@@ -199,33 +227,36 @@ class Player{
                 {return false;}
         }
         else if(movement_type == "fence placement"){
-            var wrong = false;
-            var corners = 0;
-            movement.sort();
-            for (let i=0; i < movement.length; i++){
-                var position = movement[i];
-                if ((((position-1) % 17)+1)%2 == 1 && Math.ceil(position/17)%2 == 1){
+            if (this.fences > 0){
+                var wrong = false;
+                var corners = 0;
+                movement.sort();
+                for (let i=0; i < movement.length; i++){
+                    var position = movement[i];
+                    if ((((position-1) % 17)+1)%2 == 1 && Math.ceil(position/17)%2 == 1){
+                        wrong = true;
+                    }
+                    else if ((((position-1) % 17)+1)%2 == 0 && Math.ceil(position/17)%2 == 0){
+                        corners += 1;
+                    }
+                    if (this.board.board[position-1] == 1){
+                        wrong = true;
+                    }
+                }
+                if ((!is_consecutive(movement, 1)) && (!is_consecutive(movement, 17))){
                     wrong = true;
                 }
-                else if ((((position-1) % 17)+1)%2 == 0 && Math.ceil(position/17)%2 == 0){
-                    corners += 1;
-                }
-                if (this.board.board[position-1] == 1){
+                else if (corners > 1){
                     wrong = true;
                 }
+                if (wrong){
+                    return false;
+                }
+                else{
+                    return true;
+                }
             }
-            if ((!is_consecutive(movement, 1)) && (!is_consecutive(movement, 17))){
-                wrong = true;
-            }
-            else if (corners > 1){
-                wrong = true;
-            }
-            if (wrong){
-                return false;
-            }
-            else{
-                return true;
-            }
+            
         }
         
     }

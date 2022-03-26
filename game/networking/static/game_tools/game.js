@@ -20,6 +20,7 @@ window.horizontal = true;
 window.turn = false;
 
 window.winner = null;
+window.game_status = "starting ig"
 
 
 // clearing the screen
@@ -99,6 +100,9 @@ socket.on('message', function(msg) {
         // moving this player
         if (msg["player_code"] == window.client_code){
             window.this_player.move(msg["movement"]["type"], msg["movement"]["movement"]);
+            if (msg["movement"]["type"] == "fence placement"){
+                document.getElementById("fences_left").innerHTML = "FENCES LEFT: "+window.this_player.fences;
+            }
         }
         // moving the opponent
         else{
@@ -107,19 +111,23 @@ socket.on('message', function(msg) {
         window.board.draw_board();
     }
     else if (msg["command"] == "invalid reply"){
+        window.turn = true;
         console.log(msg["problem"]);
         if (msg["problem"] == "invalid movement"){
             window.turn = true;
         }
     }
     else if (msg["command"] == "winner"){
+        window.turn = false;
         if (msg["winner"] == window.client_code){
             window.winner = window.this_player;
             document.getElementById("game_status").innerHTML = "STATUS: You won :)";
+            window.game_status = "over";
         }
         else {
             window.winner = window.this_opponent;
             document.getElementById("game_status").innerHTML = "STATUS: You lost :(";
+            window.game_status = "over";
         }
     }
 
@@ -241,9 +249,9 @@ canvas.addEventListener("mousemove", function(e) {
             else {
                 color = [255, 0, 0];
             }
-            console.log(window.this_player.position + window.this_player.direction*35);
-            console.log(position);
-            console.log(movement);
+            // console.log(window.this_player.position + window.this_player.direction*35);
+            // console.log(position);
+            // console.log(movement);
             if (!window.this_player.check_movement("piece move", movement)){
                 color = [255, 0, 0];
             }
@@ -314,8 +322,9 @@ canvas.addEventListener("mouseup", function(e){
                 }
             }
             if (window.this_player.check_movement("fence placement", poses)){
-               send({"command": "moved", "movement":{"type": "fence placement", "movement": poses}});
-               window.turn = false;
+                window.turn = false;
+                send({"command": "moved", "movement":{"type": "fence placement", "movement": poses}});
+                window.turn = false;
             }
             
         }
@@ -358,6 +367,7 @@ canvas.addEventListener("mouseup", function(e){
                 movement = "right down diagonal";
             }
             if (window.this_player.check_movement("piece move", movement)){
+                window.turn = false;
                 send({"command":"moved", "movement": {"type": "piece move", "movement": movement}});
             }
         }
@@ -366,7 +376,7 @@ canvas.addEventListener("mouseup", function(e){
 })
 
 document.addEventListener("keydown", function(e){
-    console.log(e.keyCode);
+    // console.log(e.keyCode);
     if (e.keyCode == 70){
         window.fence_mode = !window.fence_mode;
         if (window.fence_mode){

@@ -37,6 +37,7 @@ class Line{
         this.startPoint = startPoint;
         this.endPoint = endPoint;
         this.color = color;
+        this.width = 1;
         this.real = true;
     }
     draw(){
@@ -50,10 +51,12 @@ class Line{
             this.ctx.stroke();
             return null;
         }
+        this.ctx.lineWidth = this.width;
         this.ctx.beginPath();
         this.ctx.moveTo(this.startPoint[0], this.startPoint[1]);
         this.ctx.lineTo(this.endPoint[0], this.endPoint[1]);
         this.ctx.stroke();
+        this.ctx.lineWidth = 1;
     }
     move(move){
         this.startPoint[0] += move[0];

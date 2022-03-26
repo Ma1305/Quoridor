@@ -4,15 +4,22 @@
 
 {% block imports %}
     <script src="https://cdn.socket.io/3.1.3/socket.io.min.js" integrity="sha384-cPwlPLvBTa3sKAgddT6krw0cJat7egBga3DJepJyrLl4Q9/5WLra3rrnMcyTyOnh" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="{{url_for ('static',filename='style/game.css')}} ">
 {% endblock %}
 
 {% block content %} 
-    <p id="your_nickname">NICKNAME: {{nickname}}</p>
-    <p id="game_status">STATUS: </p>
-    <p id="turn">TURN: </p>
-    <p id="fence_mode">FENCE MODE: OFF</p>
-    <P id="instructions">Press "f" to turn on the fence mode | Press "f" again to go back to normal mode</P>
-    <P id="instructions">Also press "h" to switch between horizontal and vertical</P>
+    <div id="specific_info">
+        <p id="your_nickname">NICKNAME: {{nickname}}</p>
+        <p id="game_status">STATUS: </p>
+        <p id="turn">TURN: </p>
+        <p id="fences_left">FENCES LEFT: 10</p>
+        <p id="fence_mode">FENCE MODE: OFF</p>
+    </div>
+    <div id="instructions">
+        <P>Press "f" to turn on the fence mode | Press "f" again to go back to normal mode!</P>
+        <P>Press "h" to switch between horizontal and vertical!</P>
+    </div>
+    
     <canvas id="canvas"></canvas>
 {% endblock %}
 

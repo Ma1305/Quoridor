@@ -28,7 +28,7 @@ def new_connection():
         gm.new_game(game)
         player = gm.new_player(game, client, "")
         games.append(game)
-        #print("here")
+        game.storage["games"] = games
 
 
 @web_socket.on("message")
@@ -90,25 +90,28 @@ def handel_message(message):
                 else:
                     player.send({"command": "invalid reply", "problem": "invalid movement"})
             elif movement_type == "fence placement":
-                wrong = False
-                corners = 0
-                movement.sort()
-                for position in movement:
-                    if (((position-1) % 17)+1) % 2 == 1 and math.ceil(position/17) % 2 == 1:
+                if player.fences > 0:
+                    wrong = False
+                    corners = 0
+                    movement.sort()
+                    for position in movement:
+                        if (((position - 1) % 17) + 1) % 2 == 1 and math.ceil(position / 17) % 2 == 1:
+                            wrong = True
+                            break
+                        elif (((position - 1) % 17) + 1) % 2 == 0 and math.ceil(position / 17) % 2 == 0:
+                            corners += 1
+                        if player.board.board[position - 1] == 1:
+                            wrong = True
+                    if (not other_calculations.is_consecutive_number(movement, 1)) and (not other_calculations.is_consecutive_number(movement, 17)):
                         wrong = True
-                        break
-                    elif (((position-1) % 17)+1) % 2 == 0 and math.ceil(position/17) % 2 == 0:
-                        corners += 1
-                    if player.board.board[position-1] == 1:
+                    if corners > 1:
                         wrong = True
-                if (not other_calculations.is_consecutive_number(movement, 1)) and (not other_calculations.is_consecutive_number(movement, 17)):
-                    wrong = True
-                if corners > 1:
-                    wrong = True
-                if wrong:
-                    player.send({"command": "invalid reply", "problem": "invalid movement"})
+                    if wrong:
+                        player.send({"command": "invalid reply", "problem": "invalid movement"})
+                    else:
+                        player.board.move(player, message["movement"])
                 else:
-                    player.board.move(player, message["movement"])
+                    player.send({"command": "invalid reply", "problem": "not enough fences"})
 
         else:
             player.send({"command": "invalid reply", "problem": "not your turn"})

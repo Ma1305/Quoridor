@@ -19,7 +19,6 @@ class Board:
 
     def move(self, player, movement):
         # piece movement
-        print(movement)
         if movement["type"] == "piece move":
             if movement["movement"] == "forward":
                 player.pawn.position += player.direction*34
@@ -66,11 +65,11 @@ class Board:
                     self.board[pos - 1] = 0
                 player.send({"command": "invalid reply", "problem": "invalid movement"})
                 return False
+            else:
+                player.fences -= 1
         # moving to the next person
         self.turn += 1
         turn = self.get_turn()
-        print(player.pawn.position)
-        self.print_board()
         self.send_all({"command": "moved", "player_code": player.client.code, "movement": movement})
         self.send_all({"command": "turn to move", "turn": turn.client.code})
 
@@ -109,7 +108,8 @@ class Board:
         self.send_all({"command": "moved", "player_code": winner.client.code, "movement": movement})
         self.game_graphics.storage["status"] = "over"
         self.send_all({"command": "winner", "winner": winner.client.code})
-        graphics.game_graphics_list.pop(self.game_graphics)
+        graphics.game_graphics_list.remove(self.game_graphics)
+        self.game_graphics.storage["games"].remove(self.game_graphics)
 
     def print_board(self):
         counter = 0
@@ -139,6 +139,7 @@ class Player:
         self.client = client
         self.nickname = nickname
         self.direction = None
+        self.fences = 10
 
     def send(self, msg):
         self.client.send(msg)

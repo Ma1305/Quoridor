@@ -31,7 +31,7 @@ If replay is valid (send from server to all)
 
 If reply is in valid (only to that specific player)
 "command": "invalid reply"
-"problem": "invalid movement" or "not your turn"
+"problem": "invalid movement" or "not your turn" or "not enough fences"
 
 
 acceptable movement object
